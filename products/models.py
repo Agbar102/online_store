@@ -1,4 +1,8 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class Category(models.Model):
     name = models.CharField("Категории", max_length=255)
@@ -38,6 +42,8 @@ class Items(models.Model):
     is_available = models.BooleanField("Наличие", default=False)
     color = models.CharField("Цвет", max_length=20, null=True, blank=True)
     order = models.PositiveIntegerField("Порядок", default=1)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Товар"
@@ -48,7 +54,12 @@ class Items(models.Model):
         return self.title
 
 
+class Favorite(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="favorites")
+    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="favorited_by")
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
+    class Meta:
+        unique_together = ('user', 'product')
 
 
