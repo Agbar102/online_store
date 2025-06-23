@@ -1,20 +1,20 @@
 from django.db import models
-from products.models import SubCategory
+from products.models import Items
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 class Review(models.Model):
-    RATE_CHOICE = (
-        (1, "Ужасно"),
-        (2, "Плохо"),
-        (3, "Хорошо"),
-        (4, "Превосходно"),
-    )
-    product = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='reviews')
+    class RateChoice(models.IntegerChoices):
+        BAD = 1, "Ужасно"
+        POOR = 2, "Плохо"
+        GOOD = 3, "Хорошо"
+        EXCELLENT = 4, "Превосходно"
+
+    product = models.ForeignKey(Items, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='reviews')
 
-    rating = models.PositiveSmallIntegerField(choices=RATE_CHOICE)
+    rating = models.IntegerField(choices=RateChoice.choices, default=RateChoice.GOOD)
     text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

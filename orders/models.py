@@ -5,17 +5,16 @@ from products.models import SubCategory
 User = get_user_model()
 
 class Order(models.Model):
-    ORDER_STATUS_CHOICES = (
-        (1, 'Новый'),
-        (2, 'В обработке'),
-        (3, 'Отправлен'),
-        (4, 'Доставлен'),
-        (5, 'Отменен'),
-    )
+    class OrderStatusChoice(models.IntegerChoices):
+        NEW = 1, "Новый"
+        PROCESSING = 2, "В обработке"
+        SHIPPED = 3, "Отправлен"
+        DELIVERED = 4, "Доставлен"
+        CANCELED = 5, "Отменен"
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
 
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(choices=ORDER_STATUS_CHOICES, default=1)
+    status = models.IntegerField(choices=OrderStatusChoice.choices, default=OrderStatusChoice.NEW)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:

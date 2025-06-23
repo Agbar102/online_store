@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCategory
+from .models import Category, SubCategory, Items
 
 
 @admin.register(Category)
@@ -10,9 +10,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'price', 'is_available', 'order')
-    list_filter = ('category', 'is_available')
+    list_display = ('name', 'category', 'order')
+
+
+
+@admin.register(Items)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ('title', 'subcategory', 'price', 'is_available', 'order')
+    list_filter = ('subcategory', 'is_available')
     search_fields = ('title', 'production', 'model')
-
-
-

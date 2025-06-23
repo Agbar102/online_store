@@ -14,7 +14,20 @@ class Category(models.Model):
 
 
 class SubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="sub_categories")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="subcategories")
+    name = models.CharField("Подкатегория", max_length=255)
+    order = models.PositiveIntegerField("Порядок", default=1)
+
+    class Meta:
+        verbose_name = "Подкатегория"
+        verbose_name_plural = "Подкатегории"
+        ordering = ("order",)
+
+    def __str__(self):
+        return self.name
+
+class Items(models.Model):
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name="items")
     image = models.ImageField("Главаная картина товара", upload_to="image_items", null=True, blank=True)
     title = models.CharField("Название товара", max_length=255)
     description = models.TextField("Описание товара", null=True, blank=True)
@@ -27,12 +40,13 @@ class SubCategory(models.Model):
     order = models.PositiveIntegerField("Порядок", default=1)
 
     class Meta:
-        verbose_name = "Подкатегория"
-        verbose_name_plural = "Подкатегории"
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
         ordering = ("order",)
 
     def __str__(self):
         return self.title
+
 
 
 
