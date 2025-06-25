@@ -56,10 +56,10 @@ class Items(models.Model):
 
 class Favorite(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="favorites")
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="favorited_by")
+    items = models.ForeignKey(Items, on_delete=models.CASCADE, related_name="favorited")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'product')
+        unique_together = ('user', 'items')
 
 
