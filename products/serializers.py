@@ -1,12 +1,29 @@
 from rest_framework import serializers
 from django.db.models import Avg
-from .models import Items, Favorite
+from .models import Items, Favorite, Category, SubCategory
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'order']
+
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'order', 'category', 'category_name']
 
 
 class PublicItemSerializer(serializers.ModelSerializer):
+    subcategory = serializers.CharField(source='subcategory.name' ,read_only=True)
+
+
     class Meta:
         model = Items
-        fields = ['id', 'image', 'title', 'description', 'slug', 'price', 'production', 'model', 'is_available', 'color',]
+        fields = ['id', 'image', 'title', 'description', 'slug', 'price', 'production', 'model', 'is_available', 'color', 'subcategory']
 
     def to_representation(self, instance):
         reviews = instance.reviews.all()

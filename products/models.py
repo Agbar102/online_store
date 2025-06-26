@@ -30,6 +30,7 @@ class SubCategory(models.Model):
     def __str__(self):
         return self.name
 
+
 class Items(models.Model):
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name="items")
     image = models.ImageField("Главаная картина товара", upload_to="image_items", null=True, blank=True)

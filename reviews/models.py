@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from products.models import Items
 from django.contrib.auth import get_user_model
@@ -5,16 +6,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class Review(models.Model):
-    class RateChoice(models.IntegerChoices):
-        BAD = 1, "Ужасно"
-        POOR = 2, "Плохо"
-        GOOD = 3, "Хорошо"
-        EXCELLENT = 4, "Превосходно"
-
     product = models.ForeignKey(Items, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='reviews')
 
-    rating = models.IntegerField(choices=RateChoice.choices, default=RateChoice.GOOD)
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],
+                                 default=5,
+                                 verbose_name="Оценка (1-10)"
+                                 )
     text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

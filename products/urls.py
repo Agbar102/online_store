@@ -1,10 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ItemCRUDAdminViewSet, ItemListViewSet
+from .views import ItemCRUDAdminViewSet, ItemListViewSet, CategoryCRUDViewSet, SubCategoryCRUDViewSet
 
 router = DefaultRouter()
 router.register(r'admin/items', ItemCRUDAdminViewSet, basename='admin-items')
 router.register(r'items', ItemListViewSet, basename='items')
+router.register(r'categories', CategoryCRUDViewSet, basename='categories')
+router.register(r'sub_categories', SubCategoryCRUDViewSet, basename='sub_categories')
 
 urlpatterns = [
     path('', include(router.urls)),

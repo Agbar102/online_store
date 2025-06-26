@@ -4,11 +4,26 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import permissions
 
-from .permissions import IsAdminWithCustomMessage
-from .models import Items, Favorite
-from .serializers import PublicItemSerializer, AdminItemSerializer, FavoriteSerializer
+from .permissions import IsAdminWithCustomMessage, IsAdminOrReadOnly
+from .models import Items, Favorite, Category, SubCategory
+from .serializers import PublicItemSerializer, AdminItemSerializer, FavoriteSerializer, CategorySerializer, SubCategorySerializer
 from .filters import ItemFilter
 from .paginations import LargeResultsSetPagination
+
+
+
+class CategoryCRUDViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all().order_by('order')
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+
+class SubCategoryCRUDViewSet(viewsets.ModelViewSet):
+    queryset = SubCategory.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = SubCategorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category']
 
 
 class ItemCRUDAdminViewSet(viewsets.ModelViewSet):

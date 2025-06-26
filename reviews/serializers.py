@@ -7,9 +7,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'user', 'rating', 'text', 'created_at']
         read_only_fields = ['created_at']
 
-        def validate(self, data):
-            user = self.context['request'].user
-            product = data['product']
-            if Review.objects.filter(user=user, product=product).exists():
-                raise serializers.ValidationError("Вы уже оставляли отзыв на этот товар.")
-            return data
+    def validate(self, data):
+        user = self.context['request'].user
+        product = data['product']
+        if Review.objects.filter(user=user, product=product).exists():
+            raise serializers.ValidationError("Вы уже оставляли отзыв на этот товар.")
+        return data
