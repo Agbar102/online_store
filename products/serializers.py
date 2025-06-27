@@ -20,7 +20,6 @@ class SubCategorySerializer(serializers.ModelSerializer):
 class PublicItemSerializer(serializers.ModelSerializer):
     subcategory = serializers.CharField(source='subcategory.name' ,read_only=True)
 
-
     class Meta:
         model = Items
         fields = ['id', 'image', 'title', 'description', 'slug', 'price', 'production', 'model', 'is_available', 'color', 'subcategory']

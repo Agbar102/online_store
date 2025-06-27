@@ -1,7 +1,12 @@
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from users.serializers import RegisterUserSerializer
+from rest_framework import status, permissions
+from .serializers import RegisterUserSerializer
+from .tasks import send_message_register
+from .models import CustomUser
 from rest_framework.views import APIView
+from django.utils import timezone
+import random
 
 User = get_user_model()
 
@@ -16,14 +21,32 @@ class RegisterUserAPIView(APIView):
             password = serializer.validated_data.get("password")
             user = User(email=email)
             user.set_password(password)
+            user.is_active = False
             user.save()
-        return Response(True)
+
+            code = f"{random.randint(100000, 999999)}"
+            user.confirmation_code = code
+            user.confirmation_send = timezone.now()
+            user.save()
+
+            send_message_register.delay(user.email, code)
+
+        return Response({"message": "Код отправлен на email"}, status=status.HTTP_201_CREATED)
 
 
 class ActivateAPIView(APIView):
-    permission_classes = []
-    def get(self, request, pk):
-        user = User.objects.get(id=pk)
-        user.is_active= True
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        email = request.data.get('email')
+        code = request.data.get('code')
+
+        try:
+            user = CustomUser.objects.get(email=email, confirmation_code=code)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Неверный код или email"}, status=400)
+
+        user.is_active = True
+        user.confirmation_code = None
         user.save()
-        return Response(True)
+
+        return Response({"message": "Аккаунт успешно активирован"})
