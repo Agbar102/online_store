@@ -23,11 +23,14 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Items, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    paid = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.title}"
 
     def total_price(self):
+        if self.product.price is None:
+            return 0
         return self.product.price * self.quantity
 
     class Meta:
