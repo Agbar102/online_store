@@ -44,3 +44,40 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class UserEditProfileSerializer(serializers.ModelSerializer):
+    old_password = serializers.ModelSerializer(write_only=True, required=False)
+    new_password = serializers.ModelSerializer(write_only=True, required=False, min_length=8)
+    email = serializers.EmailField(required=False)
+
+    class Meta:
+        model = User
+        fields = ['email', 'old_password', 'new_password']
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+
+        old_password = attrs.get('old_password')
+        new_password = attrs.get('new_password')
+
+        if new_password:
+            if not old_password:
+                raise serializers.ValidationError("Укажите свой старый пароль для смены пароля.")
+            if not user.check_password(old_password):
+                raise serializers.ValidationError("Старый пароль неверный")
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        email = validated_data.get('email')
+        if email:
+            instance.email = email
+
+        new_password = validated_data.get('new_password')
+        if new_password:
+            instance.set_password(new_password)
+
+        instance.save()
+        return instance
+
+

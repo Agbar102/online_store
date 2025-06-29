@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from rest_framework import status, permissions
-from .serializers import RegisterUserSerializer
+from rest_framework import status, permissions, generics
+from .serializers import RegisterUserSerializer, UserEditProfileSerializer
 from .tasks import send_message_register
 from .models import CustomUser
 from rest_framework.views import APIView
@@ -50,3 +50,11 @@ class ActivateAPIView(APIView):
         user.save()
 
         return Response({"message": "Аккаунт успешно активирован"})
+
+
+class UserEditProfileApiview(generics.UpdateAPIView):
+    serializer_class = UserEditProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
