@@ -36,6 +36,7 @@ class RegisterUserAPIView(APIView):
 
 class ActivateAPIView(APIView):
     permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         email = request.data.get('email')
         code = request.data.get('code')

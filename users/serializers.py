@@ -46,8 +46,8 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
 
 class UserEditProfileSerializer(serializers.ModelSerializer):
-    old_password = serializers.ModelSerializer(write_only=True, required=False)
-    new_password = serializers.ModelSerializer(write_only=True, required=False, min_length=8)
+    old_password = serializers.CharField(write_only=True, required=False)
+    new_password = serializers.CharField(write_only=True, required=False, min_length=8)
     email = serializers.EmailField(required=False)
 
     class Meta:

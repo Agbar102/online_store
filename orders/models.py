@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from products.models import SubCategory
+from products.models import SubCategory, Items
 
 User = get_user_model()
 
@@ -28,7 +28,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
+    product = models.ForeignKey(Items, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField("Количество",default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -36,7 +36,7 @@ class OrderItem(models.Model):
         return self.price * self.quantity
 
     def __str__(self):
-        return f"{self.product.title} × {self.quantity}"
+        return f"{self.product.title} * {self.quantity}"
 
     class Meta:
         verbose_name = "Позиция заказа"

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 
+
 class CustomUserManager(BaseUserManager):
 
     def create_user(self, email, password, **extra_fields):
@@ -55,3 +56,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='activities')
+    method = models.CharField(max_length=100)
+    path = models.CharField(max_length=255)
+    time_start = models.DateTimeField(auto_now_add=True)
+    data = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.method} - {self.path}"
