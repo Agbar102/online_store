@@ -5,12 +5,12 @@ from products.models import Items
 User = get_user_model()
 
 class Cart(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="carts")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carts")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Корзина"
-        verbose_name_plural = "Коризины"
+        verbose_name_plural = "Корзины"
 
     def __str__(self):
         return f"Корзина {self.user}"

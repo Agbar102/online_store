@@ -106,15 +106,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'online_store',
-        'USER': 'postgres',
-        'PASSWORD': 'Agbar5566',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
+    'default': env.db(),
 }
+
 
 
 # Password validation
@@ -155,8 +149,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = env("CELERY_BROKER", default="redis://localhost:6379/0")
+CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://redis:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_BROKER", default="redis://redis:6379/0")
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -234,6 +228,10 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
 
     'loggers': {
         'django': {
@@ -246,5 +244,6 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+
     }
 }

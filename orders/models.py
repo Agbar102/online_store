@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from products.models import SubCategory, Items
+from shipping.models import Shipping
 
 User = get_user_model()
 
@@ -12,7 +13,7 @@ class Order(models.Model):
         DELIVERED = 4, "Доставлен"
         CANCELED = 5, "Отменен"
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-
+    shipping = models.OneToOneField(Shipping, on_delete=models.CASCADE, null=True, blank=True, related_name='order')
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=OrderStatusChoice.choices, default=OrderStatusChoice.NEW)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)

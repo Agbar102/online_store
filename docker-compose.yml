@@ -1,0 +1,53 @@
+services:
+  web:
+    build: .
+    container_name: online_store
+    ports:
+      - "8000:8000"
+    command: bash entrypoint.sh
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
+  redis:
+    image: redis:latest
+    command: redis-server
+    volumes:
+        - redis:/var/lib/redis
+        - redis-config:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - ./:/app/
+    depends_on:
+      - redis
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A core beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  redis:
+  redis-config:
