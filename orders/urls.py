@@ -1,11 +1,10 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 
-from .views import OrderViewSet
+from .views import UserOrderListView, CheckoutView, SingleProductOrderView
 
-router = DefaultRouter()
-router.register(r'', OrderViewSet, basename='orders')
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('instant/',SingleProductOrderView.as_view(), name='single-product-order'),
+    path('checkout/', CheckoutView.as_view(), name='checkout'),
+    path('orders-user/', UserOrderListView.as_view(), name='get-order')
 ]

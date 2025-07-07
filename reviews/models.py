@@ -9,10 +9,7 @@ class Review(models.Model):
     product = models.ForeignKey(Items, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='reviews')
 
-    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],
-                                 default=5,
-                                 verbose_name="Оценка (1-10)"
-                                 )
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)], default=5, verbose_name="Оценка (1-10)")
     text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

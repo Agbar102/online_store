@@ -41,6 +41,21 @@ class AdminItemSerializer(serializers.ModelSerializer):
         model = Items
         fields = '__all__'
 
+    def validate_price(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Цена не может быть отрицательной")
+        return value
+
+    def validate_stock(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Количество на складе не может быть отрицательным")
+        return value
+
+    def validate(self, data):
+        if data.get("is_active") and data.get("stock", 0) <= 0:
+            raise serializers.ValidationError("Нельзя активировать товар без наличия на складе")
+        return data
+
 
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,3 +69,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
         if Favorite.objects.filter(user=user, product=product).exists():
             raise serializers.ValidationError("Продукт уже в избранном")
         return data
+
+    def validate_product(self, product):
+        if not product.is_active:
+            raise serializers.ValidationError("Этот товар недоступен для избранного")
+        return product

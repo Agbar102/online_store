@@ -43,6 +43,7 @@ class Items(models.Model):
     is_available = models.BooleanField("Наличие", default=False)
     color = models.CharField("Цвет", max_length=20, null=True, blank=True)
     order = models.PositiveIntegerField("Порядок", default=1)
+    stock = models.IntegerField("Остаток", default=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
 

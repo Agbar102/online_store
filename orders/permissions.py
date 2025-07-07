@@ -1,20 +1,12 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
-
-class IsOwnerOrAdminForOrder(BasePermission):
-
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated
-
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_staff:
-            return True
-
-        if obj.user == request.user:
-            if request.method in SAFE_METHODS:
-                return True
-
-            if request.method in ["PATCH", "PUT"]:
-                return obj.status == 1
-
-        return False
+# from rest_framework.permissions import BasePermission, SAFE_METHODS
+#
+# class IsAdminOrUserCreateReadOnly(BasePermission):
+#
+#     def has_permission(self, request, view):
+#         if not request.user or not request.user.is_authenticated:
+#             return False
+#
+#         if request.user.is_staff:
+#             return True
+#
+#         return request.method in SAFE_METHODS or request.method == "POST"

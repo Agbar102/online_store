@@ -29,3 +29,10 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*/10'),
     },
 }
+
+CELERY_BEAT_SCHEDULE = {
+    'update_shipping_statuses_every_30_min': {
+        'task': 'shipping.tasks.update_shipping_statuses',
+        'schedule': crontab(minute='*/30'),
+    },
+}
