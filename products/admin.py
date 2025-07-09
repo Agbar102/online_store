@@ -10,13 +10,14 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'order')
+    list_display = ('id', 'name', 'category', 'order')
 
 
 
 @admin.register(Items)
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subcategory', 'price', 'is_available', 'order')
+    list_display = ('id','title', 'subcategory', 'price', 'is_available', 'order')
+    ordering = ('-id',)
     list_filter = ('subcategory', 'is_available')
     search_fields = ('title', 'production', 'model')
 

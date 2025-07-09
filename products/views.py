@@ -13,13 +13,13 @@ from .paginations import LargeResultsSetPagination
 
 
 class CategoryCRUDViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all().order_by('order')
+    queryset = Category.objects.all().order_by('-order')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
 class SubCategoryCRUDViewSet(viewsets.ModelViewSet):
-    queryset = SubCategory.objects.all()
+    queryset = SubCategory.objects.all().order_by('-id')
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = SubCategorySerializer
     filter_backends = [DjangoFilterBackend]
@@ -33,7 +33,7 @@ class ItemCRUDAdminViewSet(viewsets.ModelViewSet):
 
 
 class ItemListViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Items.objects.all()
+    queryset = Items.objects.all().order_by('-id')
     serializer_class = PublicItemSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)

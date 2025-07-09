@@ -36,7 +36,7 @@ class Items(models.Model):
     image = models.ImageField("Главаная картина товара", upload_to="image_items", null=True, blank=True)
     title = models.CharField("Название товара", max_length=255)
     description = models.TextField("Описание товара", null=True, blank=True)
-    slug = models.SlugField(max_length=255, unique=True, verbose_name="Slug", null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=False, verbose_name="Slug", null=True, blank=True)
     price = models.DecimalField("Цена", max_digits=8, decimal_places=2, null=True, blank=True)
     production = models.CharField("Производство", max_length=255, null=True, blank=True)
     model = models.CharField("Модель", max_length=255, null=True, blank=True)
@@ -50,7 +50,7 @@ class Items(models.Model):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
-        ordering = ("order",)
+        ordering = ("-id",)
 
     def __str__(self):
         return self.title

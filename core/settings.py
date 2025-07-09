@@ -147,7 +147,7 @@ TIME_ZONE = 'Asia/Bishkek'
 USE_I18N = True
 
 USE_TZ = True
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 CELERY_BROKER_URL = env("CELERY_BROKER", default="redis://redis:6379/0")
 CELERY_RESULT_BACKEND = env("CELERY_BROKER", default="redis://redis:6379/0")
