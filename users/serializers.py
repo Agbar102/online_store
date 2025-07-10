@@ -45,6 +45,11 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         return user
 
 
+class ActivateUserSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6)
+
+
 class UserEditProfileSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(write_only=True, required=False)
     new_password = serializers.CharField(write_only=True, required=False, min_length=8)

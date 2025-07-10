@@ -1,3 +1,6 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -6,8 +9,12 @@ from .models import Cart, CartItem
 from .serializers import CartSerializer, CartItemSerializer, CartItemCreateSerializer, CartItemUpdateSerializer
 
 
-class CartViewSet(viewsets.ViewSet):
+class CartViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = CartSerializer  # для list
+
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
 
     def get_user_cart(self, user):
         cart, _ = Cart.objects.get_or_create(user=user)
@@ -15,9 +22,13 @@ class CartViewSet(viewsets.ViewSet):
 
     def list(self, request):
         cart = self.get_user_cart(request.user)
-        serializer = CartSerializer(cart)
+        serializer = self.get_serializer(cart)
         return Response(serializer.data)
 
+    @extend_schema(
+        request=CartItemCreateSerializer,
+        responses={201: CartItemSerializer}
+    )
 
     @action(detail=False, methods=['post'])
     def add_item(self, request):
@@ -26,6 +37,12 @@ class CartViewSet(viewsets.ViewSet):
         item = serializer.save()
         return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(
+        request=CartItemUpdateSerializer,
+        responses={
+            200: CartItemSerializer
+        }
+    )
 
     @action(detail=False, methods=['post'])
     def update_item(self, request):
@@ -36,6 +53,15 @@ class CartViewSet(viewsets.ViewSet):
             return Response({"message": "Товар удалён из корзины"}, status=status.HTTP_204_NO_CONTENT)
         return Response(CartItemSerializer(item).data)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='pk', type=OpenApiTypes.INT, location=OpenApiParameter.PATH)
+        ],
+        responses={
+            204: OpenApiResponse(description="Товар удален"),
+            404: OpenApiResponse(description="Товар не найден")
+        }
+    )
 
     @action(detail=True, methods=['delete'])
     def remove_item(self, request, pk=None):

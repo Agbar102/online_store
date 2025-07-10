@@ -17,7 +17,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, source='items', read_only=True)
+    items = OrderItemSerializer(many=True, read_only=True)
     shipping = ShippingSerializer(read_only=True)
     shipping_status = serializers.CharField(source='shipping.get_status_display', read_only=True)
 
