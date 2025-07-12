@@ -10,7 +10,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product', 'quantity', 'price', 'get_total_price')
+    list_display = ('id','order', 'product', 'quantity', 'price', 'get_total_price')
 
     def get_total_price(self, obj):
         return obj.get_total_price()

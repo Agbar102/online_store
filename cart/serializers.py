@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from products.models import Items
 from cart.models import Cart, CartItem
