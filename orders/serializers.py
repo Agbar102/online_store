@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from cart.models import Cart
 from products.models import Items
 from shipping.serializers import ShippingSerializer
@@ -30,11 +29,10 @@ class OrderItemCreateSerializer(serializers.Serializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Items.objects.all())
     quantity = serializers.IntegerField(min_value=1)
 
-    def validate(self, attrs):
-        product = attrs['product']
-        if not product.is_active:
+    def validate_product(self, value):
+        if not value.is_active:
             raise serializers.ValidationError("Товар не активен")
-        return attrs
+        return value
 
 
 class SingleProductOrderSerializer(serializers.Serializer):
@@ -42,10 +40,17 @@ class SingleProductOrderSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1)
     shipping = ShippingSerializer()
 
-    def validate_product(self, value):
-        if not value.is_active:
+    def validate(self, data):
+        product = data['product']
+        quantity = data['quantity']
+
+        if not product.is_active:
             raise serializers.ValidationError("Товар не активен")
-        return value
+
+        if quantity > product.stock:
+            raise serializers.ValidationError(f"Доступно только {product.stock} шт.")
+
+        return data
 
     def create(self, validated_data):
         request = self.context['request']
@@ -67,6 +72,9 @@ class SingleProductOrderSerializer(serializers.Serializer):
             quantity=quantity,
             price=product.price
         )
+        product.stock -= quantity
+        product.save()
+
         send_order_email.delay(user.email, order.id)
         order.total_price = item.get_total_price() + shipping.cost
         order.save()
@@ -104,12 +112,24 @@ class CheckoutSerializer(serializers.Serializer):
         total = 0
 
         for cart_item in cart.items.all():
+            product = cart_item.product
+            quantity = cart_item.quantity
+
+            if quantity > product.stock:
+                raise serializers.ValidationError(
+                    f"{product.title}: только {product.stock} шт. в наличии"
+                )
+
             item = OrderItem.objects.create(
                 order=order,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
                 price=cart_item.product.price
             )
+
+            product.stock -= quantity
+            product.save()
+
             total += item.get_total_price()
 
         send_order_email.delay(user.email, order.id)

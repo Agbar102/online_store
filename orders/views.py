@@ -32,7 +32,7 @@ class SingleProductOrderView(generics.GenericAPIView):
                 fields={
                     "message": serializers.CharField(),
                     "order_id": serializers.IntegerField(),
-                    "product": serializers.CharField(),
+                    "product_title": serializers.CharField(),
                     "quantity": serializers.IntegerField(),
                     "product_total": serializers.FloatField(),
                     "shipping_cost": serializers.FloatField(),
@@ -40,9 +40,9 @@ class SingleProductOrderView(generics.GenericAPIView):
                     "tracking_number": serializers.CharField()
                 }
             )
-        }
+        },
+        summary="Оформить заказ на один товар"
     )
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -51,7 +51,7 @@ class SingleProductOrderView(generics.GenericAPIView):
         return Response({
             "message": "Заказ оформлен",
             "order_id": result["order"].id,
-            "product": result["item"].product.title,
+            "product_title": result["item"].product.title,
             "quantity": result["item"].quantity,
             "product_total": result["item"].get_total_price(),
             "shipping_cost": result["shipping"].cost,
@@ -78,7 +78,8 @@ class CheckoutView(generics.GenericAPIView):
                     "shipping": ShippingSerializer()
                 }
             )
-        }
+        },
+        summary="Оформить заказ через корзину"
     )
 
     def post(self, request, *args, **kwargs):

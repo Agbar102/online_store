@@ -22,10 +22,9 @@ def get_soup(url):
 def parse():
     soup = get_soup(BASE_URL)
 
-    # Находим категории
     category_divs = soup.find_all("div", class_="leftmenu-title arrowRight")
 
-    for cat_div in category_divs[:10]:  # Ограничим до 10 категорий
+    for cat_div in category_divs[:10]:
         a_tag = cat_div.find("a")
         cat_name = a_tag.text.strip()
         cat_url = BASE_URL + a_tag['href']
@@ -33,7 +32,6 @@ def parse():
         category, _ = Category.objects.get_or_create(name=cat_name)
         print(f"[+] Категория: {cat_name}")
 
-        # Парсим подкатегории (до 5)
         cat_soup = get_soup(cat_url)
         sub_divs = cat_soup.find_all("div", class_="secondli")[:5]
 
@@ -43,9 +41,8 @@ def parse():
             sub_url = BASE_URL + sub_a['href']
 
             subcategory, _ = SubCategory.objects.get_or_create(category=category, name=sub_name)
-            print(f"    └─ Подкатегория: {sub_name}")
+            print(f"Подкатегория: {sub_name}")
 
-            # Парсим товары (до 10)
             sub_soup = get_soup(sub_url)
             item_divs = sub_soup.find_all("div", class_="item product_listbox oh")[:10]
 
@@ -73,7 +70,7 @@ def parse():
                     }
                 )
                 status = "Создан" if created else "Уже есть"
-                print(f"        └─ [{status}] {title} | {price} сом")
+                print(f"[{status}] {title} | {price} сом")
 
 if __name__ == "__main__":
     parse()

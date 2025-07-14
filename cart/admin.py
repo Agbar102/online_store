@@ -14,7 +14,7 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ("id", "cart", "quantity", "total_price_display", 'paid')
+    list_display = ("id", "cart", "quantity", "total_price_display", )
     list_filter = ("cart__created_at",)
 
     def total_price_display(self, obj):

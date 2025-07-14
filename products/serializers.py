@@ -58,19 +58,26 @@ class AdminItemSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    items = PublicItemSerializer(read_only=True)
+
     class Meta:
         model = Favorite
-        fields = ['id', 'user', 'product', 'created_at']
+        fields = ['id', 'user', 'items', 'created_at']
         read_only_fields = ['user']
 
-    def validate(self, data):
-        user = self.context['request'].user
-        product = data['product']
-        if Favorite.objects.filter(user=user, product=product).exists():
-            raise serializers.ValidationError("Продукт уже в избранном")
-        return data
 
-    def validate_product(self, product):
-        if not product.is_active:
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+    items = serializers.PrimaryKeyRelatedField(queryset=Items.objects.all())
+
+    class Meta:
+        model = Favorite
+        fields = ['items']
+
+    def validate_items(self, items):
+        if not items.is_active:
             raise serializers.ValidationError("Этот товар недоступен для избранного")
-        return product
+        user = self.context['request'].user
+        if Favorite.objects.filter(user=user, items=items).exists():
+            raise serializers.ValidationError("Продукт уже в избранном")
+        return items
+

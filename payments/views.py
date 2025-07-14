@@ -36,7 +36,7 @@ class CreateCheckoutSessionView(APIView):
         provider = serializer.validated_data['provider']
 
         try:
-            order = Order.objects.get(id=int(order_id), user=request.user)
+            order = Order.objects.get(id=order_id, user=request.user)
 
             payment = Payment.objects.create(
                 user=request.user,

@@ -11,7 +11,7 @@ from .serializers import CartSerializer, CartItemSerializer, CartItemCreateSeria
 
 class CartViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = CartSerializer  # для list
+    serializer_class = CartSerializer
 
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
