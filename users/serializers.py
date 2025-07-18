@@ -1,14 +1,14 @@
+import random
+from datetime import timedelta
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.exceptions import APIException
+from django.utils import timezone
+from django.utils.timezone import now
+from users.models import CustomUser
+from .tasks import send_message_register
+
 
 User = get_user_model()
-
-
-class GmailAPIExeption(APIException):
-    status_code = 400
-    default_detail = {"message":"Регистрация только по gmail"}
-
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -22,6 +22,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if not value.endswith('@gmail.com'):
             raise serializers.ValidationError("Регистрация разрешена только с @gmail.com")
+
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Этот email уже зарегистрирован")
         return value
@@ -37,17 +38,64 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
 
     def create(self, validate_data):
-        user = User.objects.create_user(email=validate_data["email"],
-                                        password=validate_data["password"]
-                                        )
+        email = validate_data["email"]
+        password = validate_data["password"]
+
+        user = User(email=email)
+        user.set_password(password)
         user.is_active = False
+        user.confirmation_code = str(random.randint(100000, 999999))
+        user.confirmation_send = timezone.now()
         user.save()
+
+        send_message_register.delay(user.email, user.confirmation_code)
+
         return user
 
 
 class ActivateUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        email = attrs['email']
+        code = attrs['code']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("Пользователь не найден")
+
+        if user.is_active:
+            raise serializers.ValidationError("Пользователь уже активирован")
+
+        if now() - user.confirmation_send > timedelta(minutes=10):
+            raise serializers.ValidationError("Код подтверждения истёк. Запросите новый.")
+
+        if user.activation_attempts >= 5:
+            block_time = user.last_activation_attempt + timedelta(minutes=5)
+            if now() < block_time:
+                raise serializers.ValidationError("Превышено количество попыток. Попробуйте через 5 минут.")
+            else:
+                user.activation_attempts = 0
+                user.save()
+
+        if user.confirmation_code != code:
+            user.activation_attempts = user.activation_attempts + 1
+            user.last_activation_attempt = now()
+            user.save()
+            raise serializers.ValidationError("Неверный код.")
+
+        attrs['user'] = user
+        return attrs
+
+    def save(self, **kwargs):
+        user = self.validated_data['user']
+        user.is_active = True
+        user.confirmation_code = None
+        user.activation_attempts = 0
+        user.save()
+        return user
 
 
 class UserEditProfileSerializer(serializers.ModelSerializer):

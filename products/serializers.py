@@ -3,18 +3,20 @@ from django.db.models import Avg
 from .models import Items, Favorite, Category, SubCategory
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'order']
-
-
 class SubCategorySerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
         model = SubCategory
         fields = ['id', 'name', 'order', 'category', 'category_name']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'order', 'subcategories']
 
 
 class PublicItemSerializer(serializers.ModelSerializer):

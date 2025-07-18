@@ -14,7 +14,7 @@ from .paginations import LargeResultsSetPagination, FavoritePagination
 class CategoryCRUDViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('-order')
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = []
 
 
 class SubCategoryCRUDViewSet(viewsets.ModelViewSet):
@@ -31,7 +31,7 @@ class ItemCRUDAdminViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_class(self):
-        if self.request.method in ['GET', 'HEAD', 'OPTIONS']:
+        if self.action in ['GET', 'HEAD', 'OPTIONS']:
             return PublicItemSerializer
         return AdminItemSerializer
 
@@ -54,10 +54,9 @@ class ItemListViewSet(viewsets.ReadOnlyModelViewSet):
 
         ],
         responses={200: PublicItemSerializer(many=True)},
-        tags=['Products']
     )
     def list(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
@@ -66,7 +65,6 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['items__title']
     search_fields = ['items__title']
-
 
     def get_queryset(self):
         return Favorite.objects.filter(user=self.request.user)

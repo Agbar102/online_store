@@ -6,7 +6,6 @@ from shipping.models import Shipping
 User = get_user_model()
 
 class Order(models.Model):
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     shipping = models.OneToOneField(Shipping, on_delete=models.CASCADE, null=True, blank=True, related_name='order')
     created_at = models.DateTimeField(auto_now_add=True)

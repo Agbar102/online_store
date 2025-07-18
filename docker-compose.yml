@@ -6,7 +6,7 @@ services:
       - "8000:8000"
     command: bash entrypoint.sh
     volumes:
-      - .:/code
+      - .:/app
     depends_on:
       - db
       - redis

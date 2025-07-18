@@ -26,37 +26,37 @@ class CreateCheckoutSessionView(APIView):
         responses={200: dict, 400: dict, 404: dict},
         summary="Создать платёжную сессию",
     )
-
     def post(self, request, *args, **kwargs):
-        DOMAIN = "https://ca59b43bb635.ngrok-free.app"
+        DOMAIN = "https://153572301a8e.ngrok-free.app"
 
-        serializer = CheckoutSessionSerializer(data=request.data)
+        serializer = CheckoutSessionSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+
         order_id = serializer.validated_data['order_id']
         provider = serializer.validated_data['provider']
 
-        try:
-            order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id, user=request.user)
 
-            payment = Payment.objects.create(
-                user=request.user,
-                order=order,
-                amount=order.total_price,
-                provider=provider,
-                status=Payment.PaymentStatus.PENDING,
-            )
+        payment = Payment.objects.create(
+            user=request.user,
+            order=order,
+            amount=order.total_price,
+            provider=provider,
+            status=Payment.PaymentStatus.PENDING,
+        )
 
-            if provider == Payment.PaymentProvider.STRIPE:
+        if provider == Payment.PaymentProvider.STRIPE:
+            try:
                 checkout_session = stripe.checkout.Session.create(
                     payment_method_types=['card'],
                     line_items=[{
-                            'price_data': {
-                                'currency': 'rub',
-                                'unit_amount': int(order.total_price * 100),
-                                'product_data': {'name': f"Order #{order.id}",},
-                            },
-                            'quantity': 1,
-                        },],
+                        'price_data': {
+                            'currency': 'rub',
+                            'unit_amount': int(order.total_price * 100),
+                            'product_data': {'name': f"Order #{order.id}"},
+                        },
+                        'quantity': 1,
+                    }],
                     mode='payment',
                     metadata={
                         'user_id': str(request.user.id),
@@ -67,15 +67,14 @@ class CreateCheckoutSessionView(APIView):
                 )
 
                 return Response({'checkout_url': checkout_session.url})
-            return Response({
-                'message': f'Пожалуйста, оплатите через {provider}. Мы подтвердим вручную.',
-                'payment_id': payment.id
-            })
+            except Exception as e:
+                return Response({'error': str(e)}, status=400)
 
-        except Order.DoesNotExist:
-            return Response({'error': 'Order not found'}, status=404)
-        except Exception as e:
-            return Response({'error': str(e)}, status=400)
+        return Response({
+            'message': f'Пожалуйста, оплатите через {provider}. Мы подтвердим вручную.',
+            'payment_id': payment.id
+        }, status=200)
+
 
 
 @csrf_exempt

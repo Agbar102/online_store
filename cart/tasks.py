@@ -29,7 +29,7 @@ def send_cart_remember():
                 recipient_list=[cart.user.email],
                 fail_silently=False
             )
-            cache.set(cache_key, True, timeout=60 * 60 * 24)  # 24 часа
+            cache.set(cache_key, True, timeout=60 * 60 * 24)
             logger.info(f"Письмо отправлено на {cart.user.email}")
         except Exception as e:
             logger.error(f"Ошибка при отправке письма: {e}")

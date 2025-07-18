@@ -2,6 +2,7 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from orders.models import Order
+from payments.models import Payment
 from shipping.models import Shipping
 from django.utils import timezone
 import logging
@@ -33,8 +34,12 @@ def update_shipping_statuses():
     for shipment in shipments:
         try:
             order = Order.objects.get(shipping=shipment)
+            payment = Payment.objects.get(order=order)
             user_email = order.user.email
-        except Order.DoesNotExist:
+        except (Order.DoesNotExist, Payment.DoesNotExist):
+            continue
+
+        if payment.status != Payment.PaymentStatus.PAID:
             continue
 
         time_create = (now - shipment.created_at).total_seconds()

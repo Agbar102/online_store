@@ -10,8 +10,6 @@ class ItemFilter(filters.FilterSet):
     price_max = filters.NumberFilter(field_name='price', lookup_expr='lte')
     in_stock = filters.BooleanFilter(field_name='is_available')
 
-
-
     class Meta:
         model = Items
         fields = []
