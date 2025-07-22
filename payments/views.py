@@ -27,7 +27,7 @@ class CreateCheckoutSessionView(APIView):
         summary="Создать платёжную сессию",
     )
     def post(self, request, *args, **kwargs):
-        DOMAIN = "https://153572301a8e.ngrok-free.app"
+        DOMAIN = "https://48ed2aa1f4c8.ngrok-free.app"
 
         serializer = CheckoutSessionSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from .models import Cart, CartItem
-from .serializers import CartSerializer, CartItemSerializer, CartItemCreateSerializer, CartItemUpdateSerializer
+from .serializers import CartSerializer, CartItemSerializer, CartItemUpsertSerializer
 
 
 class CartViewSet(viewsets.GenericViewSet):
@@ -26,32 +26,22 @@ class CartViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        request=CartItemCreateSerializer,
-        responses={201: CartItemSerializer}
+        request=CartItemUpsertSerializer,
+        responses={201: CartItemSerializer, 200: CartItemSerializer, 204: None}
     )
 
-    @action(detail=False, methods=['post'])
-    def add_item(self, request):
-        serializer = CartItemCreateSerializer(data=request.data, context={'request': request})
+    @action(detail=False, methods=['POST'])
+    def upsert_item(self, request):
+        serializer = CartItemUpsertSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         item = serializer.save()
-        return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED)
 
-    @extend_schema(
-        request=CartItemUpdateSerializer,
-        responses={
-            200: CartItemSerializer
-        }
-    )
-
-    @action(detail=False, methods=['post'])
-    def update_item(self, request):
-        serializer = CartItemUpdateSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        item = serializer.save()
         if item is None:
-            return Response({"message": "Товар удалён из корзины"}, status=status.HTTP_204_NO_CONTENT)
-        return Response(CartItemSerializer(item).data)
+            return Response({"message": "Товар удален из корзины"}, status=204)
+
+        created = getattr(serializer, 'created', False)
+        return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
 
     @extend_schema(
         parameters=[

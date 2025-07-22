@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from orders.models import OrderItem
 from .models import Review
 from shipping.models import Shipping
 
@@ -15,19 +17,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         if Review.objects.filter(user=user, product=product).exists():
             raise serializers.ValidationError("Вы уже оставляли отзыв на этот товар.")
 
-        delivered_shippings = Shipping.objects.filter(
-            user=user,
-            status=Shipping.DeliveryStatus.DELIVERED
+        order_items = OrderItem.objects.filter(
+            product=product,
+            order__user=user,
+            order__shipping__status=Shipping.DeliveryStatus.DELIVERED
         )
 
-        has_delivered_product = False
-        for shipping in delivered_shippings:
-            for order in shipping.order.all():
-                if order.items.filter(product=product).exists():
-                    has_delivered_product = True
-                    break
-
-        if not has_delivered_product:
+        if not order_items:
             raise serializers.ValidationError("Вы можете оставить отзыв только после доставки этого товара.")
 
         return data
