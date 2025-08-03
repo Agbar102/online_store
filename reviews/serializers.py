@@ -14,8 +14,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         product = data['product']
 
-        if Review.objects.filter(user=user, product=product).exists():
-            raise serializers.ValidationError("Вы уже оставляли отзыв на этот товар.")
+        if self.instance is None:
+            if Review.objects.filter(user=user, product=product).exists():
+                raise serializers.ValidationError("Вы уже оставляли отзыв на этот товар.")
 
         order_items = OrderItem.objects.filter(
             product=product,

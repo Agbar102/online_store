@@ -15,7 +15,8 @@ class RegisterUserAPIView(generics.CreateAPIView):
     @extend_schema(
         summary="Регистрация пользователя",
         request=RegisterUserSerializer,
-        responses={201: OpenApiResponse(description="Код подтверждения отправлен на email")}
+        responses={201: OpenApiResponse(description="Код подтверждения отправлен на email")},
+        auth=[]
     )
     def create(self, request, *args, **kwargs):
         super().create(request, *args, **kwargs)
